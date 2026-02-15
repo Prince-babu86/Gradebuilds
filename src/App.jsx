@@ -1,4 +1,44 @@
+import { useState, useEffect } from 'react';
+
 export default function App() {
+  // countdown target: March 4 2026 00:00:00 local time
+  const launchDate = new Date('2026-03-04T00:00:00');
+
+  function Countdown() {
+    const [timeLeft, setTimeLeft] = useState(getTimeRemaining());
+
+    function getTimeRemaining() {
+      const now = new Date();
+      const total = launchDate - now;
+      if (total <= 0) return null;
+      const seconds = Math.floor((total / 1000) % 60);
+      const minutes = Math.floor((total / 1000 / 60) % 60);
+      const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+      const days = Math.floor(total / (1000 * 60 * 60 * 24));
+      return { total, days, hours, minutes, seconds };
+    }
+
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setTimeLeft(getTimeRemaining());
+      }, 1000);
+      return () => clearInterval(timer);
+    }, []);
+
+    if (!timeLeft) {
+      return <span className="subtitle">We have launched!</span>;
+    }
+
+    const { days, hours, minutes, seconds } = timeLeft;
+    return (
+      <div className="countdown">
+        <span>{days}d</span> <span>{String(hours).padStart(2, '0')}h</span>{' '}
+        <span>{String(minutes).padStart(2, '0')}m</span>{' '}
+        <span>{String(seconds).padStart(2, '0')}s</span>
+      </div>
+    );
+  }
+
   return (
     <>
       <style>{`
@@ -62,6 +102,21 @@ export default function App() {
           font-size: 20px;
           line-height: 1.7;
           color: #cbd5f5;
+        }
+
+        /* countdown styling */
+        .countdown {
+          margin-top: 30px;
+          font-size: clamp(36px, 8vw, 72px);
+          font-weight: 700;
+          letter-spacing: 2px;
+          color: #22d3ee;
+          text-shadow: 0 0 10px rgba(34,211,238,0.5);
+        }
+
+        .countdown span {
+          display: inline-block;
+          min-width: 80px;
         }
 
         /* ABOUT */
@@ -132,6 +187,11 @@ export default function App() {
             We are building a next-generation web & app development agency
             focused on performance, security, and scalable digital products.
           </p>
+
+          <p className="subtitle">Official launch: March 4, 2026</p>
+
+          {/* countdown timer for launch */}
+          <Countdown />
         </div>
       </section>
 
